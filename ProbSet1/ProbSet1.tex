@@ -1,0 +1,780 @@
+% This LaTeX was auto-generated from MATLAB code.
+% To make changes, update the MATLAB code and export to LaTeX again.
+
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epstopdf}
+\usepackage[table]{xcolor}
+\usepackage{matlab}
+\usepackage[paperheight=795pt,paperwidth=614pt,top=29pt,bottom=29pt,right=29pt,left=29pt,heightrounded]{geometry}
+
+\sloppy
+\epstopdfsetup{outdir=./}
+\graphicspath{ {./ProbSet1_media/} }
+
+\begin{document}
+
+\matlabtitle{\textbf{Problem Set 1}}
+
+\matlabheadingtwo{\textbf{COURSE: }TIP7200 - DIGITAL SIGNAL PROCESSING}
+
+\matlabheadingtwo{INSTRUCTOR: ANDRE LIMA FERRER ALMEIDA}
+
+\matlabheadingtwo{ID NUMBER: 544957}
+
+\matlabheadingthree{PROBLEM 1 - Implement in MATLAB (or a similar programming tool) the moving average system with the parameters $M_1$ and $M_2$:}
+
+\matlabheadingthree{$$y[n]=\frac{1}{M_1 +M_2 +1}\sum_{k=-M_1 }^{M_2 } x[n-k]$$}
+
+\matlabheadingthree{Next, use your function to filter an audio signal (soon to be available). Analyze $M_1$ and $M_2$ values' effect on the output signal. Such analysis can be done by listening to the output audio signal and comparing it to the original one. Try it for different value combinations. Plot a snippet of the audio signal before and after the filtering process to the different case studies.   }
+
+\begin{par}
+\begin{flushleft}
+First, the moving average function is implemented as it follows:
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+\textbf{function} y = mov\_avg(M1,M2,i,a,x)
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+k = 1/(M1+M2+1);
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+y = k*sum(x(i-(M2+M1+1)+a:i-1+a));
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+\textbf{end}
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+Due to to the computational process limitations and to simplify the problem $M_1$ will assume the valur 0 for all case studies. Thus, $M_2$ will be equals to 100 for the first case:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+clc; clear all; close all;
+
+M1 = 0;
+M2 = 100;
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+However, y[0] is actually y[1] because the former index doesn't exist in practice. Due to the circunstances, the variables need to be incremented by 1 unit:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+a = 1;
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+The first analyzed audio signal is "cantinaband.wav". To import the data to workspace and listen to the audio signal using the computer speakers (at the sample rate of 8192 Hz), the following command are executed respectively:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+[x,Fs] = audioread("cantinaband.wav");
+sound(x);
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+The plot of the orignal data can be seen below:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+t = 0:seconds(1/Fs):seconds(length(x)/Fs);
+t = t(1:end-1);
+
+fig = figure; clf
+
+plot(t,x); hold on
+grid on
+plotlatex(fig,'Audio Data', 'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_0.png}
+\end{center}
+
+\begin{par}
+\begin{flushleft}
+where,$x[n]$is the is the original audio signal and $F_s$ is the sample rate and its value corresponds to 22050 Hz. Now, the signal is filtered using the MA function implemented:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+y = [];
+for i=M2+1:1:length(x)
+    y(i+a) = mov_avg(M1,M2,i,a,x);
+end
+y = y(1:end-a); % (*)
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+\textbf{NOTE:} As it is seen the y[n] length is smaller than the one who originates it. So, the information present on the y[1], ..., y[M2] are unuseful information and to give coherence to the problem presented, the y[1], ..., y[M2] are discarded:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+y = y(M1+M2+1:end); % (**)
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+\textbf{NOTE 2:} It is possible to calculate one more output data position outside the length of the original time series. However, is it correct to do it theoretically?
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+....
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+Combining the logic applied into the operations (*) and (**), an alternative way to reshape y[n] is:
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+ \textbf{y = y(M1+M2+1:end-a);}
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+The filtered signal has the following behavior now:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+tn = seconds((M1+M2+1)/Fs):seconds(1/Fs):seconds(length(x)/Fs);
+
+fig = figure; clf
+
+plot(tn,y); hold on
+grid on
+plotlatex(fig,['Filtered Data (M1 = ',num2str(M1),', M2 = ',num2str(M2),')'],'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_1.png}
+\end{center}
+\begin{matlabcode}
+
+sound(y);
+audiowrite("cantfit100.wav",y,Fs);
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+\textbf{QUESTION: IF THE OUTPUT DATA LENGTH IS SMALLER THAN THE INPUT ONE, IN TERMS OF POSITION/TIME y[n] INITIAL POSITION IS N = M2+1, RIGHT?}
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+Assuming now $M_2$ equals to 1000 and using the MA function, the filtered data have the behavior plotted below:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+M1 = 0;
+M2 = 1000;
+
+y = [];
+for i=M2+1:1:length(x)
+    y(i+a) = mov_avg(M1,M2,i,a,x);
+end
+y = y(M1+M2+1:end-a);
+
+tn = seconds((M1+M2+1)/Fs):seconds(1/Fs):seconds(length(x)/Fs);
+
+fig = figure; clf
+
+plot(tn,y); hold on
+grid on
+plotlatex(fig,['Filtered Data (M1 = ',num2str(M1),', M2 = ',num2str(M2),')'],'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_2.png}
+\end{center}
+\begin{matlabcode}
+
+sound(y);
+audiowrite("cantfit1000.wav",y,Fs);
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+Changing $M_2$ value to 10000 (e.g. provoking an windowing augmenting) and applying the MA function once more, the filtering signal has the has the response plotted bellow:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+M1 = 0;
+M2 = 10000;
+
+y = [];
+for i=M2+1:1:length(x)
+    y(i+a) = mov_avg(M1,M2,i,a,x);
+end
+y = y(M1+M2+1:end-a);
+
+tn = seconds((M1+M2+1)/Fs):seconds(1/Fs):seconds(length(x)/Fs);
+
+fig = figure; clf
+
+plot(tn,y); hold on
+grid on
+plotlatex(fig,['Filtered Data (M1 = ',num2str(M1),', M2 = ',num2str(M2),')'],'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_3.png}
+\end{center}
+\begin{matlabcode}
+
+sound(y);
+audiowrite("cantfit10000.wav",y,Fs);
+\end{matlabcode}
+
+
+\begin{par}
+\begin{flushleft}
+Doing the same procedures on the audio signal "fala\_sino.wav", it has the behaviors that are plotted bellow:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+[x,Fs] = audioread("fala_sino.wav");
+sound(x);
+
+t = 0:seconds(1/Fs):seconds(length(x)/Fs);
+t = t(1:end-1);
+
+fig = figure; clf
+
+plot(t,x); hold on
+grid on
+plotlatex(fig,'Audio Data', 'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_4.png}
+\end{center}
+\begin{matlabcode}
+
+M1 = 0;
+M2 = 100;
+
+y = [];
+for i=M2+1:1:length(x)
+    y(i+a) = mov_avg(M1,M2,i,a,x);
+end
+y = y(M1+M2+1:end-a);
+
+tn = seconds((M1+M2+1)/Fs):seconds(1/Fs):seconds(length(x)/Fs);
+
+fig = figure; clf
+
+plot(tn,y); hold on
+grid on
+plotlatex(fig,['Filtered Data (M1 = ',num2str(M1),', M2 = ',num2str(M2),')'],'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_5.png}
+\end{center}
+\begin{matlabcode}
+
+sound(y);
+audiowrite("falafit100.wav",y,Fs);
+
+M1 = 0;
+M2 = 1000;
+
+y = [];
+for i=M2+1:1:length(x)
+    y(i+a) = mov_avg(M1,M2,i,a,x);
+end
+y = y(M1+M2+1:end-a);
+
+tn = seconds((M1+M2+1)/Fs):seconds(1/Fs):seconds(length(x)/Fs);
+
+fig = figure; clf
+
+plot(tn,y); hold on
+grid on
+plotlatex(fig,['Filtered Data (M1 = ',num2str(M1),', M2 = ',num2str(M2),')'],'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_6.png}
+\end{center}
+\begin{matlabcode}
+
+sound(y);
+audiowrite("falafit1000.wav",y,Fs);
+
+M1 = 0;
+M2 = 10000;
+
+y = [];
+for i=M2+1:1:length(x)
+    y(i+a) = mov_avg(M1,M2,i,a,x);
+end
+y = y(M1+M2+1:end-a);
+
+tn = seconds((M1+M2+1)/Fs):seconds(1/Fs):seconds(length(x)/Fs);
+
+fig = figure; clf
+
+plot(tn,y); hold on
+grid on
+plotlatex(fig,['Filtered Data (M1 = ',num2str(M1),', M2 = ',num2str(M2),')'],'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_7.png}
+\end{center}
+\begin{matlabcode}
+
+sound(y);
+audiowrite("falafit10000.wav",y,Fs);
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+In face of all the case studies from above is possible to conclude that if the windowing length increase, then the better is the noise and/or high frequency filtering.
+\end{flushleft}
+\end{par}
+
+
+\matlabheadingthree{PROBLEM 2 - Apply the backward difference that is defined by the relation $y[n]=x[n]-x[n-1]$. Next, use your function to filter the same audio signals from the PROBLEM 1. Evaluate the filtering effect on the output signal. Plot a snippet of the audio signal before and after the filtering process.    }
+
+\begin{par}
+\begin{flushleft}
+First, the backward difference function is implemented as it follows:
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+\textbf{function} y = b\_diff(i,x)
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+y = x(i)-x(i-1);
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+\textbf{end}
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+To load the audio data into workspace the previous commands from the PROBLEM 1 are used again. Thus, "cantinaband.wav" is the first analyzed signal: 
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+[x1,Fs1] = audioread("cantinaband.wav");
+sound(x1);
+
+t1 = 0:seconds(1/Fs1):seconds(length(x1)/Fs1);
+t1 = t1(1:end-1);
+
+fig = figure; clf
+
+plot(t1,x1); hold on
+grid on
+plotlatex(fig,'Audio Data', 'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_8.png}
+\end{center}
+
+\begin{par}
+\begin{flushleft}
+It is not possible to work with negative indexes. Thus, the initial position must be fixed in 0. However,  MATLAB also doesn't allow work with the 0 index (same problem presented on PROBLEM 1) and the data is moved by 1 unit which means:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+a = 1;
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+Now, the filtering process using backward difference is applied on the audio data:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+y1 = [];
+for i=1+a:1:length(x1)
+    y1(i) = b_diff(i,x1);
+end
+y1 = y1(a+1:end);
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+The output signal resulted from the filtering process is plotted bellow:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+tn1 = seconds((a+1)/Fs1):seconds(1/Fs1):seconds(length(x1)/Fs1);
+
+fig = figure; clf
+
+plot(tn1,y1); hold on
+grid on
+plotlatex(fig,['Filtered Data (Backward Difference)'],'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_9.png}
+\end{center}
+\begin{matlabcode}
+
+sound(y1);
+audiowrite("cantfitdiff.wav",y1,Fs1);
+\end{matlabcode}
+
+
+\begin{par}
+\begin{flushleft}
+Doing the same steps above to "fala\_sino.wav", the output response has the following behavior compared to the original data:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+[x1,Fs1] = audioread("fala_sino.wav");
+sound(x1);
+
+t1 = 0:seconds(1/Fs1):seconds(length(x1)/Fs1);
+t1 = t1(1:end-1);
+
+fig = figure; clf
+
+plot(t1,x1); hold on
+grid on
+plotlatex(fig,'Audio Data', 'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_10.png}
+\end{center}
+\begin{matlabcode}
+
+y1 = [];
+for i=1+a:1:length(x1)
+    y1(i) = b_diff(i,x1);
+end
+y1 = y1(a+1:end);
+
+tn1 = seconds((a+1)/Fs1):seconds(1/Fs1):seconds(length(x1)/Fs1);
+
+fig = figure; clf
+
+plot(tn1,y1); hold on
+grid on
+plotlatex(fig,['Filtered Data (Backward Difference)'],'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_11.png}
+\end{center}
+\begin{matlabcode}
+
+sound(y1);
+audiowrite("cantfitdiff.wav",y1,Fs1);
+\end{matlabcode}
+\begin{matlaboutput}
+Warning: Data clipped when writing file.
+\end{matlaboutput}
+
+\begin{par}
+\begin{flushleft}
+It is possible to note that the signal autocorrelation of both signals are lower because their response to the filtering process would be smoother otherwise.
+\end{flushleft}
+\end{par}
+
+
+\matlabheadingthree{\textbf{PROBLEM 3 - Implement a function that operates the convolution sum considering any }$x[n]$\textbf{ input and }$h[n]$\textbf{ LTI system. Now, consider the LTI system denoted by its impulse response}}
+
+\matlabheadingthree{$$h[n]=\delta [n]+\frac{1}{2}\delta [n-1]-\frac{1}{4}\delta [n-3]$$}
+
+\matlabheadingthree{\textbf{Using your function and considering the audio signal used on the previous problems, obtain the system output response. Evaluate the results. }}
+
+\begin{par}
+\begin{flushleft}
+The convolution sum is defined as
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{center}
+$y[n]=\sum_{k=-\infty }^{\infty } x[k]h[n-k],$         for all $n$.
+\end{center}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+Implenting the operation on MATLAB:
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+\textbf{function} y = conv\_sum(N,Nh,x,h,y)
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+\textbf{for} i=1:1:N-Nh
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+    x\_aux = x(i)*h;
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+    j=1;
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+    \textbf{while} j\textless{}=Nh
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+        y(i+j) = y(i+j)+x\_aux(j);
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+        j=j+1;
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+    \textbf{end}
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+\textbf{end}
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+\textbf{end}
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+The LTI system denoted by its impulse response can be implemented as it follows:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+h = [0.25 0 0.5 1];
+\end{matlabcode}
+
+\begin{par}
+\begin{flushleft}
+Note that it is impossible to exist an negative index in a computational implementation and to solve the case it is assumed that $h[1]=\frac{1}{4}\delta [n-3],h[2]=0,h[3]=\frac{1}{2}\delta [n-1]$ and $h[4]=\delta [n]$. 
+\end{flushleft}
+\end{par}
+
+\begin{par}
+\begin{flushleft}
+Next, to load the audio data into workspace the previous commands from the PROBLEM 1 and 2 are used again. Thus, "cantinaband.wav" is the first analyzed signal:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+[x2,Fs2] = audioread("cantinaband.wav");
+sound(x2);
+
+t2 = 0:seconds(1/Fs2):seconds(length(x2)/Fs2);
+t2 = t2(1:end-1);
+
+fig = figure; clf
+
+plot(t2,x2); hold on
+grid on
+plotlatex(fig,'Audio Data', 'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_12.png}
+\end{center}
+
+
+\begin{par}
+\begin{flushleft}
+Now, the convolution sum is calculated using the previous implemention proposed and its response is plotted bellow:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+Nh = length(h);
+N = length(x2);
+y2 = x2-x2;
+
+y2 = conv_sum(N,Nh,x2,h,y2);
+
+fig = figure; clf
+
+stem(y2, '-r','LineWidth',0.5); hold on
+grid on
+plotlatex(fig, 'Convolution Sum', 'n', 'y[n]');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_13.png}
+\end{center}
+
+\begin{par}
+\begin{flushleft}
+To verify if the operation was done correctly, it was used the MATLAB function conv() and the signal resulted from the operation is plotted bellow:
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+test = conv(x2,h);
+
+fig = figure; clf
+
+stem(test, '-b','LineWidth',0.5); hold on
+grid on
+plotlatex(fig, 'conv()', 'n', 'y[n]');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_14.png}
+\end{center}
+
+\begin{par}
+\begin{flushleft}
+It is easy to note that the responses are very similiar and then it is possible to conclude that the implemention was correctly done. It is also important to note that the system in question apparently didn't change the frequency of the input signal. However, the output singal has a higher magnitude compared to the input one.
+\end{flushleft}
+\end{par}
+
+
+\begin{par}
+\begin{flushleft}
+Now, doing the same steps above to "fala\_sino.wav", the output response has the following behavior compared to the original data:  
+\end{flushleft}
+\end{par}
+
+\begin{matlabcode}
+[x2,Fs2] = audioread("fala_sino.wav");
+sound(x2);
+
+t2 = 0:seconds(1/Fs2):seconds(length(x2)/Fs2);
+t2 = t2(1:end-1);
+
+fig = figure; clf
+
+plot(t2,x2); hold on
+grid on
+plotlatex(fig,'Audio Data', 'Time', 'Audio Signal');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_15.png}
+\end{center}
+\begin{matlabcode}
+
+Nh = length(h);
+N = length(x2);
+y2 = x2-x2;
+
+y2 = conv_sum(N,Nh,x2,h,y2);
+
+fig = figure; clf
+
+stem(y2, '-r','LineWidth',0.5); hold on
+grid on
+plotlatex(fig, 'Convolution Sum', 'n', 'y[n]');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_16.png}
+\end{center}
+\begin{matlabcode}
+
+test = conv(x2,h);
+
+fig = figure; clf
+
+stem(test, '-b','LineWidth',0.5); hold on
+grid on
+plotlatex(fig, 'conv()', 'n', 'y[n]');
+hold off
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{64.32513798294029em}]{figure_17.png}
+\end{center}
+
+\begin{par}
+\begin{flushleft}
+As it was expected, both responses are very similiar and it is possible to conclude that the convolution sum implemented is correct. And as it was also expected the system in question didn't change the frequency of the input signal. However, the output signal has a higher magnitude compared to the input one.
+\end{flushleft}
+\end{par}
+
+\end{document}
