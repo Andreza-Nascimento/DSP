@@ -15,10 +15,10 @@ Signal processing is essential in understanding and manipulating the information
 > [!NOTE]
 > The main codes are in the files with a `.mlx` extension.
 
-### [Assignment 1](ProblemSet1): Discrete-Time Signals and Systems
+### [Assignment 1](ProbSet1): Discrete-Time Signals and Systems
 - **Description:** This assignment consists of the implementation and analysis of the Moving Average (MA), Backward Difference, and Convolution Sum.
 
-### [Assignment 2](ProblemSet2): Fourier Transform
+### [Assignment 2](ProbSet2): Fourier Transform
 - **Description:** This assignment involves the use of the Fourier transform to analyze various situations involving the system's response to a certain input and its effect on the original characteristics of the input signal. The design of an equalizer to
 
 ## License 📄
